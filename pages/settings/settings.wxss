@@ -1,0 +1,37 @@
+.profile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.profile-name {
+  font-size: 34rpx;
+  font-weight: 700;
+}
+
+.setting-row {
+  min-height: 128rpx;
+  padding: 22rpx 0;
+  border-bottom: 2rpx solid #eee6d9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24rpx;
+}
+
+.setting-row:last-child {
+  border-bottom: 0;
+}
+
+.setting-title {
+  font-weight: 700;
+}
+
+.setting-desc,
+.roadmap {
+  margin-top: 8rpx;
+  color: #817b70;
+  font-size: 24rpx;
+  line-height: 1.5;
+}

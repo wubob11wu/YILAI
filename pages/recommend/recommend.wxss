@@ -1,0 +1,87 @@
+.weather {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.weather-city {
+  font-size: 34rpx;
+  font-weight: 700;
+}
+
+.weather-summary {
+  margin-top: 8rpx;
+  color: #777970;
+}
+
+.weather-data {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+  color: #5f584f;
+  font-size: 24rpx;
+  text-align: right;
+}
+
+.inline-add {
+  margin-top: 18rpx;
+  display: flex;
+  gap: 12rpx;
+}
+
+.inline-add-input {
+  flex: 1;
+}
+
+.inline-add-btn {
+  width: 132rpx;
+}
+
+.missing {
+  margin-bottom: 18rpx;
+  color: #9e6a20;
+  font-size: 24rpx;
+}
+
+.outfit {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14rpx;
+}
+
+.outfit-piece {
+  min-height: 150rpx;
+  padding: 18rpx;
+  border: 2rpx solid #e2d9ca;
+  border-radius: 6rpx;
+  background: #faf6ee;
+}
+
+.piece-label {
+  color: #777970;
+  font-size: 22rpx;
+}
+
+.piece-name {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.reason,
+.palette {
+  margin-top: 20rpx;
+  line-height: 1.6;
+}
+
+.palette {
+  color: #8a6a38;
+  font-weight: 700;
+}
+
+.full-btn {
+  width: 100%;
+  margin-top: 24rpx;
+}

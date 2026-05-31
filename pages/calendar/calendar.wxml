@@ -1,0 +1,49 @@
+<view class="page">
+  <view class="topbar">
+    <view>
+      <view class="title">穿搭日历</view>
+      <view class="subtitle">记录每日搭配，查看衣物使用频次</view>
+    </view>
+  </view>
+
+  <view class="stats">
+    <view class="stat">
+      <view class="stat-num">{{outfitCount}}</view>
+      <view class="stat-label">穿搭次数</view>
+    </view>
+    <view class="stat">
+      <view class="stat-num">{{usedItemCount}}</view>
+      <view class="stat-label">已使用衣物</view>
+    </view>
+    <view class="stat">
+      <view class="stat-num">{{topItem ? topItem.usageCount : 0}}</view>
+      <view class="stat-label">最高频次</view>
+    </view>
+  </view>
+
+  <view class="section panel">
+    <view class="section-title">高频衣物</view>
+    <view wx:if="{{rankedItems.length}}">
+      <view wx:for="{{rankedItems}}" wx:key="id" class="rank-row">
+        <view>
+          <view class="rank-name">{{item.name}}</view>
+          <view class="rank-meta">{{item.category}} · {{item.color || '未填颜色'}}</view>
+        </view>
+        <view class="rank-count">{{item.usageCount || 0}}次</view>
+      </view>
+    </view>
+    <view wx:else class="empty small">还没有穿搭记录。</view>
+  </view>
+
+  <view class="section panel">
+    <view class="section-title">记录</view>
+    <view wx:if="{{visibleOutfits.length}}">
+      <view wx:for="{{visibleOutfits}}" wx:key="id" class="record">
+        <view class="record-date">{{item.date}}</view>
+        <view class="record-items">{{item.names}}</view>
+        <view class="record-meta">配色 {{item.palette}} · {{item.weather.city}} {{item.weather.temp}}度</view>
+      </view>
+    </view>
+    <view wx:else class="empty small">{{privacy.hideOutfitRecords ? '穿搭记录已隐藏。' : '暂无记录，可在推荐页标记今日穿搭。'}}</view>
+  </view>
+</view>

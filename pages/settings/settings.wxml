@@ -1,0 +1,51 @@
+<view class="page">
+  <view class="topbar">
+    <view>
+      <view class="title">设置</view>
+      <view class="subtitle">账号、城市和隐私控制</view>
+    </view>
+  </view>
+
+  <view class="panel profile">
+    <view>
+      <view class="profile-name">{{profile.nickname}}</view>
+      <view class="subtitle">{{profile.loggedIn ? '已登录，衣橱数据可同步到微信账号' : '未登录，本机保存衣橱数据'}}</view>
+    </view>
+    <button class="primary-btn" bindtap="login">{{profile.loggedIn ? '刷新' : '微信登录'}}</button>
+  </view>
+
+  <view class="section panel">
+    <view class="section-title">天气城市</view>
+    <input class="input" placeholder="关闭位置权限后用于手动天气推荐" value="{{profile.city}}" bindinput="onCity" bindblur="saveProfile" />
+  </view>
+
+  <view class="section panel">
+    <view class="section-title">隐私设置</view>
+    <view class="setting-row">
+      <view>
+        <view class="setting-title">隐藏个人身材数据</view>
+        <view class="setting-desc">MVP 暂不采集身材数据，开关会保留到账号设置。</view>
+      </view>
+      <switch checked="{{privacy.hideBodyData}}" data-field="hideBodyData" bindchange="togglePrivacy" color="#1d1c1a" />
+    </view>
+    <view class="setting-row">
+      <view>
+        <view class="setting-title">隐藏穿搭记录</view>
+        <view class="setting-desc">开启后，日历页不展示历史穿搭明细。</view>
+      </view>
+      <switch checked="{{privacy.hideOutfitRecords}}" data-field="hideOutfitRecords" bindchange="togglePrivacy" color="#1d1c1a" />
+    </view>
+    <view class="setting-row">
+      <view>
+        <view class="setting-title">开启位置权限</view>
+        <view class="setting-desc">关闭后使用上方城市生成天气推荐。</view>
+      </view>
+      <switch checked="{{privacy.locationEnabled}}" data-field="locationEnabled" bindchange="togglePrivacy" color="#1d1c1a" />
+    </view>
+  </view>
+
+  <view class="section panel">
+    <view class="section-title">后续可接入</view>
+    <view class="roadmap">云开发数据库、微信手机号授权、真实天气 API、图片识别模型、衣物图片云存储。</view>
+  </view>
+</view>

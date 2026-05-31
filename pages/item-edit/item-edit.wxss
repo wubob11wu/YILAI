@@ -1,0 +1,59 @@
+.image-area {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border: 2rpx dashed #cfd7d1;
+  border-radius: 8rpx;
+  overflow: hidden;
+  background: #edf2ef;
+}
+
+.preview {
+  width: 100%;
+  height: 100%;
+}
+
+.upload-hint {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8a6a38;
+  font-weight: 700;
+}
+
+.full-btn {
+  width: 100%;
+  margin-top: 18rpx;
+}
+
+.inline-input {
+  margin-top: 14rpx;
+}
+
+.inline-add {
+  margin-top: 14rpx;
+  display: flex;
+  gap: 12rpx;
+}
+
+.inline-add-input {
+  flex: 1;
+}
+
+.inline-add-btn {
+  width: 132rpx;
+}
+
+.actions {
+  position: sticky;
+  bottom: 0;
+  padding: 20rpx 0 0;
+  background: #f8f7f3;
+  display: flex;
+  gap: 16rpx;
+}
+
+.grow {
+  flex: 1;
+}

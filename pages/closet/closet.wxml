@@ -1,0 +1,44 @@
+<view class="page">
+  <view class="topbar">
+    <view>
+      <view class="title">我的衣橱</view>
+      <view class="subtitle">{{filteredItems.length}} 件衣物，按大类、细分和季节整理</view>
+    </view>
+    <button class="primary-btn" bindtap="addItem">录入</button>
+  </view>
+
+  <view class="panel">
+    <input class="input search" placeholder="搜索颜色、品牌、标签、名称" value="{{keyword}}" bindinput="onKeyword" />
+    <view class="filter-block">
+      <view class="label">品类</view>
+      <view class="chip-row">
+        <view class="chip {{categoryFilter === '全部' ? 'active' : ''}}" data-value="全部" bindtap="setCategory">全部</view>
+        <view wx:for="{{categories}}" wx:key="*this" class="chip {{categoryFilter === item ? 'active' : ''}}" data-value="{{item}}" bindtap="setCategory">{{item}}</view>
+      </view>
+    </view>
+    <view class="filter-block">
+      <view class="label">季节</view>
+      <view class="chip-row">
+        <view class="chip {{seasonFilter === '全部' ? 'active' : ''}}" data-value="全部" bindtap="setSeason">全部</view>
+        <view wx:for="{{seasons}}" wx:key="*this" class="chip {{seasonFilter === item ? 'active' : ''}}" data-value="{{item}}" bindtap="setSeason">{{item}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view wx:if="{{filteredItems.length}}" class="grid">
+      <view wx:for="{{filteredItems}}" wx:key="id" class="item-card" data-id="{{item.id}}" bindtap="editItem">
+        <view class="photo-wrap">
+          <image wx:if="{{item.image}}" class="photo" mode="aspectFill" src="{{item.image}}" />
+          <view wx:else class="photo-placeholder">{{item.subcategory || item.category}}</view>
+        </view>
+        <view class="item-name">{{item.name}}</view>
+        <view class="item-meta">{{item.category}} / {{item.subcategory || '未细分'}} · {{item.color || '未填颜色'}}</view>
+        <view class="mini-tags">
+          <text wx:for="{{item.tags}}" wx:key="*this">{{item}}</text>
+        </view>
+      </view>
+    </view>
+    <view wx:else class="empty">没有符合条件的衣物，换个筛选试试。</view>
+  </view>
+</view>

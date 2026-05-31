@@ -1,0 +1,41 @@
+{
+  "pages": [
+    "pages/closet/closet",
+    "pages/recommend/recommend",
+    "pages/calendar/calendar",
+    "pages/settings/settings",
+    "pages/item-edit/item-edit"
+  ],
+  "window": {
+    "navigationBarTitleText": "衣来",
+    "navigationBarBackgroundColor": "#f6f2ea",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f6f2ea"
+  },
+  "tabBar": {
+    "color": "#8a857c",
+    "selectedColor": "#1d1c1a",
+    "backgroundColor": "#fffdfa",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/closet/closet",
+        "text": "衣橱"
+      },
+      {
+        "pagePath": "pages/recommend/recommend",
+        "text": "推荐"
+      },
+      {
+        "pagePath": "pages/calendar/calendar",
+        "text": "日历"
+      },
+      {
+        "pagePath": "pages/settings/settings",
+        "text": "设置"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}
