@@ -1,53 +1,79 @@
-<view class="page">
-  <view class="topbar">
-    <view>
-      <view class="title">今日推荐</view>
-      <view class="subtitle">结合天气、季节和你的风格偏好</view>
+<view class="recommend-page">
+  <view class="weather-bar">
+    <view class="weather-main">
+      <text>{{weather.city}}</text>
+      <text>{{weather.temp}}℃</text>
+      <text>{{weather.text}}</text>
+      <text>{{weather.icon}}</text>
     </view>
-    <button class="primary-btn" bindtap="refresh">刷新</button>
+    <view class="weather-tip">{{weather.dressingTip}}</view>
   </view>
 
-  <view class="panel weather">
-    <view>
-      <view class="weather-city">{{weather.city}}</view>
-      <view class="weather-summary">{{weather.temp}}度 · {{weather.summary}}</view>
-    </view>
-    <view class="weather-data">
-      <text>降水 {{weather.rainChance}}%</text>
-      <text>风力 {{weather.wind}}级</text>
-    </view>
+  <view class="scene-strip">
+    <view
+      wx:for="{{quickSceneOptions}}"
+      wx:key="name"
+      class="scene-chip {{item.active ? 'active' : ''}}"
+      data-name="{{item.name}}"
+      bindtap="selectScene"
+    >{{item.name}}</view>
+    <view class="scene-chip more" bindtap="openScenePanel">更多+</view>
   </view>
 
-  <view class="section panel">
-    <view class="section-title">风格偏好</view>
-    <view class="chip-row">
-      <view wx:for="{{styleOptions}}" wx:key="name" class="chip {{item.active ? 'active' : ''}}" data-value="{{item.name}}" bindtap="togglePreference">{{item.name}}</view>
-    </view>
-    <view class="inline-add">
-      <input class="input inline-add-input" placeholder="自定义风格，如 松弛感、Y2K、轻户外" value="{{customStyleText}}" bindinput="onCustomStyle" />
-      <button class="ghost-btn inline-add-btn" bindtap="addCustomStyle">添加</button>
-    </view>
-  </view>
-
-  <view class="section panel">
-    <view class="section-title">推荐组合</view>
+  <view class="outfit-showcase">
     <view wx:if="{{recommendation.missingText}}" class="missing">缺少 {{recommendation.missingText}}，推荐可能不完整。</view>
-    <view class="outfit">
-      <view class="outfit-piece">
-        <view class="piece-label">上衣</view>
-        <view class="piece-name">{{recommendation.top ? recommendation.top.name : '暂无'}}</view>
+    <view wx:for="{{recommendation.pieces}}" wx:key="role" class="piece-row">
+      <view class="piece-image">
+        <image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill" />
+        <view wx:else class="piece-placeholder">{{item.role}}</view>
       </view>
-      <view class="outfit-piece">
-        <view class="piece-label">下装</view>
-        <view class="piece-name">{{recommendation.pants ? recommendation.pants.name : '暂无'}}</view>
-      </view>
-      <view class="outfit-piece">
-        <view class="piece-label">鞋履</view>
-        <view class="piece-name">{{recommendation.shoes ? recommendation.shoes.name : '暂无'}}</view>
+      <view class="piece-caption">{{item.name}}</view>
+    </view>
+  </view>
+
+  <view class="color-section">
+    <view
+      wx:for="{{recommendation.colorTags}}"
+      wx:key="id"
+      class="color-pill"
+    >
+      <view class="color-dot" style="background: {{item.hex}};"></view>
+      <text>{{item.name}}</text>
+    </view>
+  </view>
+
+  <view class="reason-card">
+    <view class="reason-title">推荐理由</view>
+    <view wx:for="{{recommendation.reasonLines}}" wx:key="*this" class="reason-line">✅ {{item}}</view>
+  </view>
+
+  <view class="action-area">
+    <button class="wear-btn {{confirmed ? 'confirmed' : ''}}" bindtap="confirmOutfit" disabled="{{!canConfirm}}">
+      {{confirmed ? '已确认 ✓' : '👍 就穿这套'}}
+    </button>
+    <view wx:if="{{showCalendarLink}}" class="calendar-link" bindtap="goCalendar">查看日历</view>
+    <view class="secondary-actions">
+      <button class="change-btn" bindtap="changeOutfit">换一套</button>
+      <button class="dislike-btn" bindtap="dislikeOutfit">不喜欢</button>
+    </view>
+  </view>
+
+  <view wx:if="{{scenePanelOpen}}" class="panel-mask" bindtap="closeScenePanel"></view>
+  <view class="scene-panel {{scenePanelOpen ? 'open' : ''}}">
+    <view class="panel-handle"></view>
+    <view class="panel-title">选择场景</view>
+    <view wx:for="{{sceneGroups}}" wx:key="group" class="scene-group">
+      <view class="scene-group-title">{{item.group}}</view>
+      <view class="scene-grid">
+        <view
+          wx:for="{{item.options}}"
+          wx:for-item="scene"
+          wx:key="name"
+          class="panel-scene {{scene.name === selectedSceneName ? 'active' : ''}}"
+          data-name="{{scene.name}}"
+          bindtap="selectScene"
+        >{{scene.name}}</view>
       </view>
     </view>
-    <view class="reason">{{recommendation.reason}}</view>
-    <view class="palette">配色：{{recommendation.palette}}</view>
-    <button class="primary-btn full-btn" bindtap="markToday" disabled="{{!recommendation.itemIds.length}}">标记为今日穿搭</button>
   </view>
 </view>

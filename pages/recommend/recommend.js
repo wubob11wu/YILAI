@@ -1,80 +1,134 @@
 const storage = require("../../utils/storage");
 const weatherService = require("../../utils/weather");
 const recommender = require("../../utils/recommendation");
-const taxonomy = require("../../utils/taxonomy");
+const scenes = require("../../utils/scenes");
 
 Page({
   data: {
-    styles: taxonomy.stylePresets,
-    styleOptions: [],
-    customStyleText: "",
-    profile: {},
-    weather: {},
+    weather: weatherService.fallbackWeather(),
+    selectedSceneName: scenes.getDefaultSceneName(),
+    quickSceneOptions: [],
+    sceneGroups: scenes.sceneGroups,
+    scenePanelOpen: false,
     recommendation: {
       missing: [],
+      pieces: [],
+      colorTags: [],
+      reasonLines: [],
       itemIds: []
-    }
+    },
+    changeIndex: 0,
+    confirmed: false,
+    canConfirm: false,
+    showCalendarLink: false
+  },
+
+  onLoad() {
+    this.syncSceneOptions();
   },
 
   onShow() {
-    this.refresh();
+    this.loadWeatherAndRecommend();
   },
 
-  refresh() {
+  loadWeatherAndRecommend() {
     const profile = storage.getProfile();
     const privacy = storage.getPrivacy();
-    const weather = weatherService.getMockWeather(privacy.locationEnabled ? profile.city : profile.city || "上海");
-    const recommendation = recommender.buildRecommendation(storage.getItems(), weather, profile);
+    this.getWeatherLocation(profile, privacy).then((location) => weatherService.fetchCurrentWeather(location)).then((weather) => {
+      this.setData({ weather }, () => this.refreshRecommendation());
+    });
+  },
+
+  getWeatherLocation(profile, privacy) {
+    if (!privacy.locationEnabled) return Promise.resolve(profile.city || "北京");
+    return new Promise((resolve) => {
+      wx.getLocation({
+        type: "gcj02",
+        success: (res) => resolve(`${res.longitude},${res.latitude}`),
+        fail: () => resolve(profile.city || "北京")
+      });
+    });
+  },
+
+  refreshRecommendation() {
+    const profile = storage.getProfile();
+    const scene = scenes.getScene(this.data.selectedSceneName);
+    const recommendation = recommender.buildRecommendation(
+      storage.getItems(),
+      this.data.weather,
+      profile,
+      scene,
+      this.data.changeIndex
+    );
     recommendation.missingText = (recommendation.missing || []).join("、");
-    const styles = taxonomy.getStyles(profile);
-    const styleOptions = styles.map((name) => ({
+    this.setData({
+      recommendation,
+      confirmed: false,
+      canConfirm: !!recommendation.itemIds.length,
+      showCalendarLink: false
+    });
+    this.syncSceneOptions();
+  },
+
+  syncSceneOptions() {
+    const quickSceneOptions = scenes.quickScenes.map((name) => ({
       name,
-      active: (profile.stylePrefs || []).includes(name)
+      active: name === this.data.selectedSceneName
     }));
-    this.setData({ profile, weather, recommendation, styles, styleOptions });
+    this.setData({ quickSceneOptions });
   },
 
-  togglePreference(event) {
-    const value = event.currentTarget.dataset.value;
-    const current = this.data.profile.stylePrefs || [];
-    const stylePrefs = current.includes(value)
-      ? current.filter((style) => style !== value)
-      : current.concat(value);
-    const profile = Object.assign({}, this.data.profile, { stylePrefs });
-    storage.saveProfile(profile);
-    this.setData({ profile }, this.refresh);
+  selectScene(event) {
+    const selectedSceneName = event.currentTarget.dataset.name;
+    this.setData({
+      selectedSceneName,
+      scenePanelOpen: false,
+      changeIndex: 0
+    }, () => this.refreshRecommendation());
   },
 
-  onCustomStyle(event) {
-    this.setData({ customStyleText: event.detail.value });
+  openScenePanel() {
+    this.setData({ scenePanelOpen: true });
   },
 
-  addCustomStyle() {
-    const style = String(this.data.customStyleText || "").trim();
-    if (!style) return;
-    const profile = Object.assign({}, this.data.profile);
-    const stylePrefs = profile.stylePrefs || [];
-    if (!stylePrefs.includes(style)) {
-      profile.stylePrefs = stylePrefs.concat(style);
-    }
-    profile.customStyle = "";
-    storage.saveProfile(profile);
-    this.setData({ customStyleText: "" });
-    this.refresh();
+  closeScenePanel() {
+    this.setData({ scenePanelOpen: false });
   },
 
-  markToday() {
+  confirmOutfit() {
     const recommendation = this.data.recommendation;
-    if (!recommendation.itemIds.length) return;
+    if (!recommendation.itemIds.length || this.data.confirmed) return;
     storage.addOutfit({
       id: `outfit_${Date.now()}`,
       date: new Date().toISOString().slice(0, 10),
       itemIds: recommendation.itemIds,
       weather: this.data.weather,
+      scene: this.data.selectedSceneName,
       palette: recommendation.palette,
-      reason: recommendation.reason,
+      reason: recommendation.reasonLines.join("；"),
       createdAt: Date.now()
     });
-    wx.showToast({ title: "已记录今日穿搭", icon: "success" });
+    this.setData({ confirmed: true, canConfirm: false });
+    wx.showToast({ title: "已记录到今日穿搭日历 📅", icon: "none", duration: 1500 });
+    setTimeout(() => {
+      this.setData({ showCalendarLink: true });
+    }, 1500);
+  },
+
+  changeOutfit() {
+    this.setData({
+      changeIndex: this.data.changeIndex + 1,
+      confirmed: false,
+      canConfirm: false,
+      showCalendarLink: false
+    }, () => this.refreshRecommendation());
+  },
+
+  dislikeOutfit() {
+    this.changeOutfit();
+  },
+
+  goCalendar() {
+    wx.switchTab({ url: "/pages/calendar/calendar" });
   }
 });

@@ -12,6 +12,11 @@
     "navigationBarTextStyle": "black",
     "backgroundColor": "#f6f2ea"
   },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于获取当前位置天气并生成穿搭推荐"
+    }
+  },
   "tabBar": {
     "color": "#8a857c",
     "selectedColor": "#1d1c1a",
