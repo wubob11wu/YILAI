@@ -1,44 +1,72 @@
-<view class="page">
-  <view class="topbar">
+<view class="closet-page">
+  <view class="closet-header">
     <view>
       <view class="title">我的衣橱</view>
-      <view class="subtitle">{{filteredItems.length}} 件衣物，按大类、细分和季节整理</view>
+      <view class="subtitle">默认展示：{{defaultSeasonText}}</view>
     </view>
-    <button class="primary-btn" bindtap="addItem">录入</button>
+    <button class="add-floating" bindtap="addItem">+ 添加衣物</button>
   </view>
 
-  <view class="panel">
-    <input class="input search" placeholder="搜索颜色、品牌、标签、名称" value="{{keyword}}" bindinput="onKeyword" />
-    <view class="filter-block">
-      <view class="label">品类</view>
-      <view class="chip-row">
-        <view class="chip {{categoryFilter === '全部' ? 'active' : ''}}" data-value="全部" bindtap="setCategory">全部</view>
-        <view wx:for="{{categories}}" wx:key="*this" class="chip {{categoryFilter === item ? 'active' : ''}}" data-value="{{item}}" bindtap="setCategory">{{item}}</view>
-      </view>
-    </view>
-    <view class="filter-block">
-      <view class="label">季节</view>
-      <view class="chip-row">
-        <view class="chip {{seasonFilter === '全部' ? 'active' : ''}}" data-value="全部" bindtap="setSeason">全部</view>
-        <view wx:for="{{seasons}}" wx:key="*this" class="chip {{seasonFilter === item ? 'active' : ''}}" data-value="{{item}}" bindtap="setSeason">{{item}}</view>
-      </view>
-    </view>
+  <view class="search-wrap">
+    <input class="search-input" placeholder="按衣物名称搜索..." value="{{keyword}}" bindinput="onKeyword" />
   </view>
 
-  <view class="section">
-    <view wx:if="{{filteredItems.length}}" class="grid">
-      <view wx:for="{{filteredItems}}" wx:key="id" class="item-card" data-id="{{item.id}}" bindtap="editItem">
-        <view class="photo-wrap">
-          <image wx:if="{{item.image}}" class="photo" mode="aspectFill" src="{{item.image}}" />
-          <view wx:else class="photo-placeholder">{{item.subcategory || item.category}}</view>
-        </view>
+  <scroll-view class="category-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+    <view class="category-row">
+      <view
+        wx:for="{{categories}}"
+        wx:key="*this"
+        class="category-chip {{categoryFilter === item ? 'active' : ''}}"
+        data-value="{{item}}"
+        bindtap="setCategory"
+      >{{item}}</view>
+    </view>
+  </scroll-view>
+
+  <view class="filter-entry" bindtap="toggleFilter">
+    <text>筛选</text>
+    <text>{{filterOpen ? '▲' : '▼'}}</text>
+  </view>
+
+  <view wx:if="{{filterOpen}}" class="filter-panel">
+    <view class="filter-row-title">细分品类</view>
+    <view class="filter-chip-row">
+      <view wx:for="{{subcategoryOptions}}" wx:key="name" class="filter-chip {{item.active ? 'active' : ''}}" data-field="selectedSubcategories" data-value="{{item.name}}" bindtap="toggleMulti">{{item.name}}</view>
+    </view>
+
+    <view class="filter-row-title">季节</view>
+    <view class="filter-chip-row">
+      <view wx:for="{{seasonOptions}}" wx:key="name" class="filter-chip {{item.active ? 'active' : ''}}" data-field="selectedSeasons" data-value="{{item.name}}" bindtap="toggleMulti">{{item.name}}</view>
+      <view class="filter-chip helper" bindtap="showAllSeasons">全季节</view>
+    </view>
+
+    <view class="filter-row-title">颜色</view>
+    <view class="filter-chip-row">
+      <view wx:for="{{colorOptions}}" wx:key="name" class="filter-chip {{item.active ? 'active' : ''}}" data-field="selectedColors" data-value="{{item.name}}" bindtap="toggleMulti">{{item.name}}</view>
+    </view>
+
+    <view class="filter-row-title">主风格</view>
+    <view class="filter-chip-row">
+      <view wx:for="{{styleOptions}}" wx:key="name" class="filter-chip {{item.active ? 'active' : ''}}" data-field="selectedStyles" data-value="{{item.name}}" bindtap="toggleMulti">{{item.name}}</view>
+    </view>
+
+    <button class="clear-filter" bindtap="clearAdvancedFilters">恢复默认季节筛选</button>
+  </view>
+
+  <view class="closet-grid" wx:if="{{filteredItems.length}}">
+    <view wx:for="{{filteredItems}}" wx:key="id" class="item-card" data-id="{{item.id}}" bindtap="editItem" bindlongpress="confirmDelete">
+      <view class="photo-wrap">
+        <image wx:if="{{item.image}}" class="photo" mode="aspectFill" src="{{item.image}}" />
+        <view wx:else class="photo-placeholder">{{item.subcategory}}</view>
+      </view>
+      <view class="item-info">
         <view class="item-name">{{item.name}}</view>
-        <view class="item-meta">{{item.category}} / {{item.subcategory || '未细分'}} · {{item.color || '未填颜色'}}</view>
-        <view class="mini-tags">
-          <text wx:for="{{item.tags}}" wx:key="*this">{{item}}</text>
-        </view>
+        <view class="style-badge">{{item.mainStyle}}</view>
       </view>
     </view>
-    <view wx:else class="empty">没有符合条件的衣物，换个筛选试试。</view>
+  </view>
+
+  <view wx:else class="empty">
+    {{items.length ? '未找到相关衣物，可调整关键词或添加新衣物' : '你的衣橱还是空的，点击右上角 + 添加第一件衣物吧'}}
   </view>
 </view>

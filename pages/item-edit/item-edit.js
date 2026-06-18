@@ -6,16 +6,19 @@ function emptyForm() {
   return {
     id: `item_${Date.now()}`,
     name: "",
-    category: "上衣",
-    subcategory: "衬衫",
-    seasons: ["春", "秋"],
-    color: "",
+    category: "上装",
+    subcategory: "T恤",
+    seasons: ["夏"],
+    color: "白",
     material: "",
     brand: "",
     purchasedAt: "",
     price: "",
     tags: [],
-    styleTags: [],
+    mainStyle: "简约基础",
+    styleAttributes: ["基础款"],
+    styleTags: ["基础款"],
+    note: "",
     image: "",
     usageCount: 0,
     createdAt: Date.now()
@@ -25,27 +28,32 @@ function emptyForm() {
 Page({
   data: {
     isEdit: false,
+    moreOpen: false,
+    autoColorText: "白色",
+    autoSeasonText: "夏",
     form: emptyForm(),
-    tagText: "",
-    customSubcategory: "",
-    customStyleText: "",
     categories: taxonomy.getCategoryNames(),
-    seasons: taxonomy.seasons,
-    styles: taxonomy.stylePresets,
     categoryOptions: [],
     subcategoryOptions: [],
+    colorOptions: [],
     seasonOptions: [],
-    styleOptions: []
+    mainStyleOptions: [],
+    attributeOptions: []
   },
 
   onLoad(query) {
-    this.syncOptions();
-    if (!query.id) return;
-    const item = storage.getItems().find((current) => current.id === query.id);
-    if (item) {
-      this.setData({ isEdit: true, form: item, tagText: (item.tags || []).join(",") });
-      this.syncOptions();
+    if (query.id) {
+      const item = storage.getItems().find((current) => current.id === query.id);
+      if (item) {
+        this.setData({
+          isEdit: true,
+          form: item,
+          autoColorText: taxonomy.getColorDisplayName(item.color),
+          autoSeasonText: (item.seasons || []).join("、")
+        });
+      }
     }
+    this.syncOptions();
   },
 
   chooseImage() {
@@ -57,49 +65,68 @@ Page({
         const tempFilePath = res.tempFiles[0].tempFilePath;
         const recognized = recognizer.recognizeImage(tempFilePath);
         const form = Object.assign({}, this.data.form, recognized);
-        this.setData({ form, tagText: form.tags.join(",") });
-        this.syncOptions();
-        wx.showToast({ title: "已识别基础信息", icon: "success" });
+        this.setData({
+          form,
+          autoColorText: taxonomy.getColorDisplayName(form.color),
+          autoSeasonText: form.seasons.join("、")
+        }, this.syncOptions);
+        wx.showToast({ title: "已自动预填信息", icon: "success" });
       }
     });
   },
 
-  onInput(event) {
-    const field = event.currentTarget.dataset.field;
-    this.setData({ [`form.${field}`]: event.detail.value });
-  },
-
-  onTags(event) {
-    const tagText = event.detail.value;
-    const tags = tagText.split(/[,，]/).map((tag) => tag.trim()).filter(Boolean);
-    this.setData({ tagText, "form.tags": tags });
-  },
-
   setCategory(event) {
     const category = event.currentTarget.dataset.value;
-    const subcategories = taxonomy.getSubcategories(category);
+    const subcategory = taxonomy.getSubcategories(category)[0] || "";
+    const color = this.data.form.color;
+    const seasons = taxonomy.inferSeasons(subcategory);
+    const mainStyle = taxonomy.inferMainStyle(category, subcategory, color);
+    const styleAttributes = taxonomy.inferStyleAttributes(subcategory, color);
     this.setData({
       "form.category": category,
-      "form.subcategory": subcategories[0] || ""
-    });
-    this.syncOptions();
+      "form.subcategory": subcategory,
+      "form.seasons": seasons,
+      "form.mainStyle": mainStyle,
+      "form.styleAttributes": styleAttributes,
+      "form.styleTags": styleAttributes,
+      "form.name": this.buildName(color, mainStyle, subcategory),
+      autoSeasonText: seasons.join("、")
+    }, this.syncOptions);
   },
 
   setSubcategory(event) {
-    this.setData({
-      "form.subcategory": event.currentTarget.dataset.value,
-      customSubcategory: ""
-    });
-    this.syncOptions();
+    const subcategory = event.currentTarget.dataset.value;
+    this.applyInference({ subcategory });
   },
 
-  onCustomSubcategory(event) {
-    const customSubcategory = event.detail.value;
+  setColor(event) {
+    const color = event.currentTarget.dataset.value;
+    this.applyInference({ color });
+  },
+
+  applyInference(patch) {
+    const form = Object.assign({}, this.data.form, patch);
+    const seasons = taxonomy.inferSeasons(form.subcategory);
+    const mainStyle = taxonomy.inferMainStyle(form.category, form.subcategory, form.color);
+    const styleAttributes = taxonomy.inferStyleAttributes(form.subcategory, form.color);
+    form.seasons = seasons;
+    form.mainStyle = mainStyle;
+    form.styleAttributes = styleAttributes;
+    form.styleTags = styleAttributes;
+    form.name = this.buildName(form.color, mainStyle, form.subcategory);
     this.setData({
-      customSubcategory,
-      "form.subcategory": customSubcategory.trim()
-    });
-    this.syncOptions();
+      form,
+      autoColorText: taxonomy.getColorDisplayName(form.color),
+      autoSeasonText: seasons.join("、")
+    }, this.syncOptions);
+  },
+
+  buildName(color, mainStyle, subcategory) {
+    return `${taxonomy.getColorDisplayName(color)}${mainStyle}${subcategory}`;
+  },
+
+  onNameInput(event) {
+    this.setData({ "form.name": event.detail.value });
   },
 
   toggleSeason(event) {
@@ -107,72 +134,78 @@ Page({
     const seasons = this.data.form.seasons.includes(value)
       ? this.data.form.seasons.filter((season) => season !== value)
       : this.data.form.seasons.concat(value);
-    this.setData({ "form.seasons": seasons });
-    this.syncOptions();
+    this.setData({
+      "form.seasons": seasons,
+      autoSeasonText: seasons.join("、") || "未选择"
+    }, this.syncOptions);
   },
 
-  toggleStyle(event) {
+  toggleMore() {
+    this.setData({ moreOpen: !this.data.moreOpen });
+  },
+
+  setMainStyle(event) {
+    this.setData({ "form.mainStyle": event.currentTarget.dataset.value }, this.syncOptions);
+  },
+
+  toggleAttribute(event) {
     const value = event.currentTarget.dataset.value;
-    const styleTags = this.data.form.styleTags.includes(value)
-      ? this.data.form.styleTags.filter((style) => style !== value)
-      : this.data.form.styleTags.concat(value);
-    this.setData({ "form.styleTags": styleTags });
-    this.syncOptions();
+    let styleAttributes = this.data.form.styleAttributes || [];
+    if (styleAttributes.includes(value)) {
+      styleAttributes = styleAttributes.filter((item) => item !== value);
+    } else {
+      if (styleAttributes.length >= 3) {
+        wx.showToast({ title: "最多选择 3 个", icon: "none" });
+        return;
+      }
+      styleAttributes = styleAttributes.concat(value);
+    }
+    this.setData({
+      "form.styleAttributes": styleAttributes,
+      "form.styleTags": styleAttributes
+    }, this.syncOptions);
   },
 
-  onCustomStyle(event) {
-    this.setData({ customStyleText: event.detail.value });
-  },
-
-  addCustomStyle() {
-    const style = String(this.data.customStyleText || "").trim();
-    if (!style) return;
-    const styleTags = (this.data.form.styleTags || []).includes(style)
-      ? this.data.form.styleTags
-      : this.data.form.styleTags.concat(style);
-    const styles = this.data.styles.includes(style) ? this.data.styles : this.data.styles.concat(style);
-    this.setData({ styles, "form.styleTags": styleTags, customStyleText: "" });
-    this.syncOptions();
+  onNoteInput(event) {
+    this.setData({ "form.note": event.detail.value.slice(0, 50) });
   },
 
   syncOptions() {
     const form = this.data.form;
-    const subcategories = taxonomy.getSubcategories(form.category);
-    const mergedSubcategories = subcategories.includes(form.subcategory) || !form.subcategory
-      ? subcategories
-      : subcategories.concat(form.subcategory);
-    const mergedStyles = this.data.styles.concat((form.styleTags || []).filter((style) => !this.data.styles.includes(style)));
     this.setData({
       categoryOptions: this.data.categories.map((name) => ({ name, active: form.category === name })),
-      subcategoryOptions: mergedSubcategories.map((name) => ({ name, active: form.subcategory === name })),
-      seasonOptions: this.data.seasons.map((name) => ({ name, active: (form.seasons || []).includes(name) })),
-      styles: mergedStyles,
-      styleOptions: mergedStyles.map((name) => ({ name, active: (form.styleTags || []).includes(name) }))
+      subcategoryOptions: taxonomy.getSubcategories(form.category).map((name) => ({ name, active: form.subcategory === name })),
+      colorOptions: taxonomy.colors.map((name) => ({ name, active: taxonomy.normalizeColorName(form.color) === name, display: taxonomy.getColorDisplayName(name) })),
+      seasonOptions: taxonomy.seasons.map((name) => ({ name, active: (form.seasons || []).includes(name) })),
+      mainStyleOptions: taxonomy.mainStyles.map((name) => ({ name, active: form.mainStyle === name })),
+      attributeOptions: taxonomy.styleAttributes.map((name) => ({ name, active: (form.styleAttributes || []).includes(name) }))
     });
   },
 
-  save() {
+  validate() {
     const form = this.data.form;
-    if (!form.name.trim()) {
-      wx.showToast({ title: "请填写名称", icon: "none" });
+    if (!form.image) return "请先上传单品图片";
+    if (!form.category || !form.subcategory) return "请选择完整的衣物品类";
+    if (!form.color) return "请选择衣物颜色";
+    if (!String(form.name || "").trim()) return "请填写衣物名称";
+    if (!form.seasons || !form.seasons.length) return "请选择适用季节";
+    return "";
+  },
+
+  save() {
+    const error = this.validate();
+    if (error) {
+      wx.showToast({ title: error, icon: "none" });
       return;
     }
-    if (!form.seasons.length) {
-      wx.showToast({ title: "至少选择一个季节", icon: "none" });
-      return;
-    }
-    if (!form.subcategory.trim()) {
-      wx.showToast({ title: "请填写细分品类", icon: "none" });
-      return;
-    }
-    storage.saveItem(form);
+    storage.saveItem(this.data.form);
     wx.navigateBack();
   },
 
   remove() {
     wx.showModal({
       title: "删除衣物",
-      content: "删除后将不再参与推荐和统计。",
+      content: "确认删除这件衣物？",
       success: (res) => {
         if (!res.confirm) return;
         storage.removeItem(this.data.form.id);

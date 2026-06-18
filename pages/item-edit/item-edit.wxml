@@ -1,85 +1,74 @@
-<view class="page">
-  <view class="topbar">
-    <view>
-      <view class="title">{{isEdit ? '编辑衣物' : '录入衣物'}}</view>
-      <view class="subtitle">拍照或从相册导入后，可继续手动修正信息</view>
-    </view>
+<view class="edit-page">
+  <view class="edit-header">
+    <view class="title">{{isEdit ? '编辑衣物' : '添加衣物'}}</view>
   </view>
 
-  <view class="panel">
+  <view class="edit-section">
+    <view class="required-title">必填 1 · 单品图片</view>
     <view class="image-area" bindtap="chooseImage">
       <image wx:if="{{form.image}}" class="preview" mode="aspectFill" src="{{form.image}}" />
-      <view wx:else class="upload-hint">选择照片</view>
+      <view wx:else class="upload-hint">拍照 / 相册选择 / 自动裁剪为方图</view>
     </view>
-    <button class="secondary-btn full-btn" bindtap="chooseImage">拍照 / 相册导入并识别</button>
+    <button class="secondary-btn full-btn" bindtap="chooseImage">拍照 / 相册选择</button>
   </view>
 
-  <view class="section panel">
-    <view class="field">
-      <view class="label">名称</view>
-      <input class="input" value="{{form.name}}" data-field="name" bindinput="onInput" placeholder="例如 白色棉质衬衫" />
+  <view class="edit-section">
+    <view class="required-title">必填 2 · 二级品类</view>
+    <view class="field-label">大品类</view>
+    <view class="chip-row">
+      <view wx:for="{{categoryOptions}}" wx:key="name" class="select-chip {{item.active ? 'active' : ''}}" data-value="{{item.name}}" bindtap="setCategory">{{item.name}}</view>
     </view>
-
-    <view class="field">
-      <view class="label">大品类</view>
-      <view class="chip-row">
-        <view wx:for="{{categoryOptions}}" wx:key="name" class="chip {{item.active ? 'active' : ''}}" data-value="{{item.name}}" bindtap="setCategory">{{item.name}}</view>
-      </view>
-    </view>
-
-    <view class="field">
-      <view class="label">细分品类</view>
-      <view class="chip-row">
-        <view wx:for="{{subcategoryOptions}}" wx:key="name" class="chip {{item.active ? 'active' : ''}}" data-value="{{item.name}}" bindtap="setSubcategory">{{item.name}}</view>
-      </view>
-      <input class="input inline-input" value="{{customSubcategory}}" bindinput="onCustomSubcategory" placeholder="自定义细分，如 手链、马甲、贝雷帽" />
-    </view>
-
-    <view class="field">
-      <view class="label">季节</view>
-      <view class="chip-row">
-        <view wx:for="{{seasonOptions}}" wx:key="name" class="chip {{item.active ? 'active' : ''}}" data-value="{{item.name}}" bindtap="toggleSeason">{{item.name}}</view>
-      </view>
-    </view>
-
-    <view class="field">
-      <view class="label">颜色</view>
-      <input class="input" value="{{form.color}}" data-field="color" bindinput="onInput" placeholder="例如 白色" />
-    </view>
-    <view class="field">
-      <view class="label">材质</view>
-      <input class="input" value="{{form.material}}" data-field="material" bindinput="onInput" placeholder="例如 棉、牛仔、皮革" />
-    </view>
-    <view class="field">
-      <view class="label">品牌</view>
-      <input class="input" value="{{form.brand}}" data-field="brand" bindinput="onInput" placeholder="可选" />
-    </view>
-    <view class="field">
-      <view class="label">购买时间</view>
-      <input class="input" value="{{form.purchasedAt}}" data-field="purchasedAt" bindinput="onInput" placeholder="例如 2026-05" />
-    </view>
-    <view class="field">
-      <view class="label">价格</view>
-      <input class="input" type="digit" value="{{form.price}}" data-field="price" bindinput="onInput" placeholder="可选" />
-    </view>
-    <view class="field">
-      <view class="label">标签</view>
-      <input class="input" value="{{tagText}}" bindinput="onTags" placeholder="用逗号分隔，如 通勤,约会" />
-    </view>
-    <view class="field">
-      <view class="label">风格</view>
-      <view class="chip-row">
-        <view wx:for="{{styleOptions}}" wx:key="name" class="chip {{item.active ? 'active' : ''}}" data-value="{{item.name}}" bindtap="toggleStyle">{{item.name}}</view>
-      </view>
-      <view class="inline-add">
-        <input class="input inline-add-input" value="{{customStyleText}}" bindinput="onCustomStyle" placeholder="自定义风格，如 松弛感、Y2K" />
-        <button class="ghost-btn inline-add-btn" bindtap="addCustomStyle">添加</button>
-      </view>
+    <view class="field-label">细品类</view>
+    <view class="chip-row">
+      <view wx:for="{{subcategoryOptions}}" wx:key="name" class="select-chip {{item.active ? 'active' : ''}}" data-value="{{item.name}}" bindtap="setSubcategory">{{item.name}}</view>
     </view>
   </view>
 
-  <view class="actions">
-    <button wx:if="{{isEdit}}" class="danger-btn" bindtap="remove">删除</button>
-    <button class="primary-btn grow" bindtap="save">保存</button>
+  <view class="edit-section">
+    <view class="required-title">必填 3 · 颜色选择</view>
+    <view class="auto-line">✅ 系统已自动识别主色：{{autoColorText}}</view>
+    <view class="color-grid">
+      <view wx:for="{{colorOptions}}" wx:key="name" class="color-chip {{item.active ? 'active' : ''}}" data-value="{{item.name}}" bindtap="setColor">{{item.display}}</view>
+    </view>
+  </view>
+
+  <view class="edit-section">
+    <view class="required-title">必填 4 · 衣物名称</view>
+    <input class="edit-input" value="{{form.name}}" bindinput="onNameInput" placeholder="系统自动生成，可修改" />
+  </view>
+
+  <view class="edit-section">
+    <view class="required-title">必填 5 · 适用季节</view>
+    <view class="auto-line">✅ 系统已自动选择：{{autoSeasonText}}</view>
+    <view class="chip-row">
+      <view wx:for="{{seasonOptions}}" wx:key="name" class="select-chip {{item.active ? 'active' : ''}}" data-value="{{item.name}}" bindtap="toggleSeason">{{item.name}}</view>
+    </view>
+  </view>
+
+  <view class="more-toggle" bindtap="toggleMore">
+    <text>更多可选属性</text>
+    <text>{{moreOpen ? '▲' : '▼'}}</text>
+  </view>
+
+  <view wx:if="{{moreOpen}}" class="edit-section">
+    <view class="field-label">选填 1 · 主风格（系统自动推断）</view>
+    <view class="chip-row">
+      <view wx:for="{{mainStyleOptions}}" wx:key="name" class="select-chip {{item.active ? 'active' : ''}}" data-value="{{item.name}}" bindtap="setMainStyle">{{item.name}}</view>
+    </view>
+
+    <view class="field-label">选填 2 · 风格属性标签（最多 3 个）</view>
+    <view class="chip-row">
+      <view wx:for="{{attributeOptions}}" wx:key="name" class="select-chip {{item.active ? 'active' : ''}}" data-value="{{item.name}}" bindtap="toggleAttribute">{{item.name}}</view>
+    </view>
+
+    <view class="field-label">选填 3 · 备注</view>
+    <textarea class="note-input" maxlength="50" value="{{form.note}}" bindinput="onNoteInput" placeholder="最多 50 字，例如：适合重要会议、容易皱" />
+  </view>
+
+  <view class="bottom-space"></view>
+
+  <view class="bottom-actions">
+    <button wx:if="{{isEdit}}" class="delete-btn" bindtap="remove">删除</button>
+    <button class="save-btn" bindtap="save">保存</button>
   </view>
 </view>

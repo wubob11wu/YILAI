@@ -53,12 +53,17 @@ Page({
   refreshRecommendation() {
     const profile = storage.getProfile();
     const scene = scenes.getScene(this.data.selectedSceneName);
+    const history = {
+      recommendations: storage.getRecommendationHistory(),
+      outfits: storage.getOutfits()
+    };
     const recommendation = recommender.buildRecommendation(
       storage.getItems(),
       this.data.weather,
       profile,
       scene,
-      this.data.changeIndex
+      this.data.changeIndex,
+      history
     );
     recommendation.missingText = (recommendation.missing || []).join("、");
     this.setData({
@@ -67,6 +72,15 @@ Page({
       canConfirm: !!recommendation.itemIds.length,
       showCalendarLink: false
     });
+    if (recommendation.signature) {
+      storage.addRecommendationHistory({
+        signature: recommendation.signature,
+        itemIds: recommendation.itemIds,
+        scene: this.data.selectedSceneName,
+        weatherTemp: this.data.weather.temp,
+        createdAt: Date.now()
+      });
+    }
     this.syncSceneOptions();
   },
 
