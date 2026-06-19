@@ -1,49 +1,53 @@
-<view class="page">
-  <view class="topbar">
+<view class="calendar-page">
+  <view class="calendar-header">
     <view>
       <view class="title">穿搭日历</view>
-      <view class="subtitle">记录每日搭配，查看衣物使用频次</view>
+      <view class="subtitle">点击日期查看当天穿搭</view>
     </view>
   </view>
 
-  <view class="stats">
-    <view class="stat">
-      <view class="stat-num">{{outfitCount}}</view>
-      <view class="stat-label">穿搭次数</view>
+  <view class="month-card">
+    <view class="month-nav">
+      <button class="month-btn" bindtap="prevMonth">‹</button>
+      <view class="month-title">{{monthTitle}}</view>
+      <button class="month-btn" bindtap="nextMonth">›</button>
     </view>
-    <view class="stat">
-      <view class="stat-num">{{usedItemCount}}</view>
-      <view class="stat-label">已使用衣物</view>
-    </view>
-    <view class="stat">
-      <view class="stat-num">{{topItem ? topItem.usageCount : 0}}</view>
-      <view class="stat-label">最高频次</view>
-    </view>
-  </view>
 
-  <view class="section panel">
-    <view class="section-title">高频衣物</view>
-    <view wx:if="{{rankedItems.length}}">
-      <view wx:for="{{rankedItems}}" wx:key="id" class="rank-row">
-        <view>
-          <view class="rank-name">{{item.name}}</view>
-          <view class="rank-meta">{{item.category}} · {{item.color || '未填颜色'}}</view>
-        </view>
-        <view class="rank-count">{{item.usageCount || 0}}次</view>
+    <view class="week-row">
+      <view wx:for="{{weekDays}}" wx:key="*this" class="week-cell">{{item}}</view>
+    </view>
+
+    <view class="day-grid">
+      <view
+        wx:for="{{calendarDays}}"
+        wx:key="key"
+        class="day-cell {{item.empty ? 'empty-cell' : ''}} {{item.active ? 'active' : ''}} {{item.today ? 'today' : ''}}"
+        data-date="{{item.date}}"
+        bindtap="selectDate"
+      >
+        <text wx:if="{{!item.empty}}">{{item.day}}</text>
+        <view wx:if="{{item.hasRecord}}" class="record-dot"></view>
       </view>
     </view>
-    <view wx:else class="empty small">还没有穿搭记录。</view>
   </view>
 
-  <view class="section panel">
-    <view class="section-title">记录</view>
-    <view wx:if="{{visibleOutfits.length}}">
-      <view wx:for="{{visibleOutfits}}" wx:key="id" class="record">
-        <view class="record-date">{{item.date}}</view>
-        <view class="record-items">{{item.names}}</view>
-        <view class="record-meta">配色 {{item.palette}} · {{item.weather.city}} {{item.weather.temp}}度</view>
+  <view class="detail-card">
+    <view class="detail-top">
+      <view>
+        <view class="detail-date">{{selectedDate}}</view>
+        <view class="detail-summary">{{selectedSummary}}</view>
       </view>
     </view>
-    <view wx:else class="empty small">{{privacy.hideOutfitRecords ? '穿搭记录已隐藏。' : '暂无记录，可在推荐页标记今日穿搭。'}}</view>
+
+    <canvas class="outfit-canvas" canvas-id="outfitCanvas"></canvas>
+
+    <view wx:if="{{privacy.hideOutfitRecords}}" class="empty-text">穿搭记录已隐藏。</view>
+    <view wx:elif="{{selectedOutfits.length}}" class="record-list">
+      <view wx:for="{{selectedOutfits}}" wx:key="id" class="record-item">
+        <view class="record-main">{{item.names}}</view>
+        <view class="record-meta">{{item.sceneText}} · {{item.weatherText}} · {{item.palette}}</view>
+      </view>
+    </view>
+    <view wx:else class="empty-text">这一天还没有记录。去推荐页确认一套穿搭后，这里会实时生成穿搭图片。</view>
   </view>
 </view>

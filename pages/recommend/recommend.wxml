@@ -54,8 +54,9 @@
     <view wx:if="{{showCalendarLink}}" class="calendar-link" bindtap="goCalendar">查看日历</view>
     <view class="secondary-actions">
       <button class="change-btn" bindtap="changeOutfit">换一套</button>
-      <button class="dislike-btn" bindtap="dislikeOutfit">不喜欢</button>
+      <button class="change-btn" bindtap="openTunePanel">微调</button>
     </view>
+    <button class="dislike-btn" bindtap="dislikeOutfit">不喜欢，换一套</button>
   </view>
 
   <view wx:if="{{scenePanelOpen}}" class="panel-mask" bindtap="closeScenePanel"></view>
@@ -73,6 +74,26 @@
           data-name="{{scene.name}}"
           bindtap="selectScene"
         >{{scene.name}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{tunePanelOpen}}" class="panel-mask" bindtap="closeTunePanel"></view>
+  <view class="tune-panel {{tunePanelOpen ? 'open' : ''}}">
+    <view class="panel-handle"></view>
+    <view class="panel-title">微调这套穿搭</view>
+    <view class="tune-list">
+      <view class="tune-item" data-target="top" bindtap="changePiece">
+        <text>换上装</text>
+        <text class="tune-desc">保留下装和鞋子，只换上衣</text>
+      </view>
+      <view class="tune-item" data-target="pants" bindtap="changePiece">
+        <text>换下装</text>
+        <text class="tune-desc">保留上装和鞋子，只换裤裙</text>
+      </view>
+      <view class="tune-item" data-target="shoes" bindtap="changePiece">
+        <text>换鞋饰</text>
+        <text class="tune-desc">保留上下装，只换鞋子</text>
       </view>
     </view>
   </view>

@@ -1,69 +1,166 @@
-.stats {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14rpx;
+.calendar-page {
+  min-height: 100vh;
+  padding: 28rpx 28rpx 56rpx;
+  background: #f6f2ea;
 }
 
-.stat {
-  min-height: 138rpx;
+.calendar-header {
+  margin-bottom: 20rpx;
+}
+
+.month-card,
+.detail-card {
   border: 2rpx solid #e2d9ca;
-  border-radius: 6rpx;
+  border-radius: 18rpx;
   background: #fffdfa;
-  padding: 20rpx;
+  box-shadow: 0 12rpx 32rpx rgba(50, 42, 31, 0.06);
 }
 
-.stat-num {
-  color: #1d1c1a;
-  font-size: 42rpx;
-  font-weight: 800;
+.month-card {
+  padding: 22rpx;
 }
 
-.stat-label {
-  margin-top: 8rpx;
-  color: #817b70;
-  font-size: 22rpx;
-}
-
-.rank-row,
-.record {
-  padding: 18rpx 0;
-  border-bottom: 2rpx solid #eee6d9;
-}
-
-.rank-row {
+.month-nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20rpx;
+  margin-bottom: 20rpx;
 }
 
-.rank-row:last-child,
-.record:last-child {
-  border-bottom: 0;
+.month-btn {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1eadf;
+  color: #1d1c1a;
+  font-size: 42rpx;
 }
 
-.rank-name,
-.record-date {
+.month-title {
+  font-size: 32rpx;
   font-weight: 700;
 }
 
-.rank-meta,
-.record-meta {
-  margin-top: 8rpx;
+.week-row,
+.day-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.week-cell {
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: #817b70;
   font-size: 22rpx;
 }
 
-.rank-count {
-  color: #8a6a38;
+.day-cell {
+  position: relative;
+  height: 76rpx;
+  margin: 4rpx;
+  border-radius: 38rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1d1c1a;
+  font-size: 25rpx;
+}
+
+.day-cell.today {
+  border: 2rpx solid #cfc4b4;
+}
+
+.day-cell.active {
+  background: #1d1c1a;
+  color: #fffdfa;
   font-weight: 700;
 }
 
-.record-items {
-  margin-top: 10rpx;
+.empty-cell {
+  color: transparent;
+}
+
+.record-dot {
+  position: absolute;
+  left: 50%;
+  bottom: 8rpx;
+  width: 8rpx;
+  height: 8rpx;
+  margin-left: -4rpx;
+  border-radius: 50%;
+  background: #8a6a38;
+}
+
+.day-cell.active .record-dot {
+  background: #fffdfa;
+}
+
+.detail-card {
+  margin-top: 22rpx;
+  padding: 24rpx;
+}
+
+.detail-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.detail-date {
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.detail-summary {
+  margin-top: 8rpx;
+  color: #817b70;
+  font-size: 24rpx;
+}
+
+.outfit-canvas {
+  width: 640rpx;
+  height: 840rpx;
+  margin-top: 20rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+  background: #fffdfa;
+}
+
+.record-list {
+  margin-top: 18rpx;
+}
+
+.record-item {
+  padding: 18rpx 0;
+  border-top: 2rpx solid #eee6d9;
+}
+
+.record-main {
+  color: #1d1c1a;
+  font-size: 26rpx;
+  font-weight: 700;
   line-height: 1.5;
 }
 
-.small {
-  padding: 40rpx 0;
+.record-meta {
+  margin-top: 8rpx;
+  color: #817b70;
+  font-size: 23rpx;
+  line-height: 1.5;
+}
+
+.empty-text {
+  margin-top: 18rpx;
+  padding: 28rpx;
+  border-radius: 14rpx;
+  background: #f8f2e8;
+  color: #817b70;
+  font-size: 25rpx;
+  line-height: 1.6;
+  text-align: center;
 }

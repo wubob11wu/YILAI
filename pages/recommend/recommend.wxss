@@ -207,6 +207,9 @@
 }
 
 .dislike-btn {
+  width: 100%;
+  height: 64rpx;
+  margin-top: 12rpx;
   color: #817b70;
 }
 
@@ -220,7 +223,8 @@
   background: rgba(29, 28, 26, 0.28);
 }
 
-.scene-panel {
+.scene-panel,
+.tune-panel {
   position: fixed;
   left: 0;
   right: 0;
@@ -235,6 +239,10 @@
 }
 
 .scene-panel.open {
+  transform: translateY(0);
+}
+
+.tune-panel.open {
   transform: translateY(0);
 }
 
@@ -282,4 +290,31 @@
   border-color: #1d1c1a;
   background: #1d1c1a;
   color: #fffdfa;
+}
+
+.tune-list {
+  margin-top: 18rpx;
+}
+
+.tune-item {
+  min-height: 96rpx;
+  padding: 18rpx 0;
+  border-bottom: 2rpx solid #eee6d9;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8rpx;
+  color: #1d1c1a;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.tune-item:last-child {
+  border-bottom: 0;
+}
+
+.tune-desc {
+  color: #817b70;
+  font-size: 23rpx;
+  font-weight: 400;
 }

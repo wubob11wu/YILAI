@@ -220,14 +220,35 @@ function scoreCombo(combo, weather, scene, history, comboCount) {
   return score;
 }
 
-function buildRecommendation(items, weather, profile, scene, offset, history) {
+function pickTunedCombo(rankedCombos, tuneOptions, fallbackIndex) {
+  if (!tuneOptions || !tuneOptions.replaceRole || !tuneOptions.currentIds) {
+    return rankedCombos.length ? rankedCombos[fallbackIndex % rankedCombos.length] : {};
+  }
+
+  const role = tuneOptions.replaceRole;
+  const current = tuneOptions.currentIds;
+  const tuned = rankedCombos.filter((combo) => {
+    const topId = combo.top && combo.top.id;
+    const pantsId = combo.pants && combo.pants.id;
+    const shoesId = combo.shoes && combo.shoes.id;
+    if (role === "top") return pantsId === current.pants && shoesId === current.shoes && topId !== current.top;
+    if (role === "pants") return topId === current.top && shoesId === current.shoes && pantsId !== current.pants;
+    if (role === "shoes") return topId === current.top && pantsId === current.pants && shoesId !== current.shoes;
+    return false;
+  });
+
+  if (tuned.length) return tuned[fallbackIndex % tuned.length];
+  return rankedCombos.length ? rankedCombos[fallbackIndex % rankedCombos.length] : {};
+}
+
+function buildRecommendation(items, weather, profile, scene, offset, history, tuneOptions) {
   const currentOffset = offset || 0;
   const combos = buildCombos(items, weather, scene);
   const comboCount = combos.length;
   const rankedCombos = combos
     .map((combo) => Object.assign({}, combo, { score: scoreCombo(combo, weather, scene, history, comboCount) }))
     .sort((a, b) => b.score - a.score);
-  const selectedCombo = rankedCombos.length ? rankedCombos[currentOffset % rankedCombos.length] : {};
+  const selectedCombo = pickTunedCombo(rankedCombos, tuneOptions, currentOffset);
   const top = selectedCombo.top || null;
   const pants = selectedCombo.pants || null;
   const shoes = selectedCombo.shoes || null;

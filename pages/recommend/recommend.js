@@ -18,6 +18,8 @@ Page({
       itemIds: []
     },
     changeIndex: 0,
+    tunePanelOpen: false,
+    tuneOptions: null,
     confirmed: false,
     canConfirm: false,
     showCalendarLink: false
@@ -63,11 +65,13 @@ Page({
       profile,
       scene,
       this.data.changeIndex,
-      history
+      history,
+      this.data.tuneOptions
     );
     recommendation.missingText = (recommendation.missing || []).join("、");
     this.setData({
       recommendation,
+      tuneOptions: null,
       confirmed: false,
       canConfirm: !!recommendation.itemIds.length,
       showCalendarLink: false
@@ -140,6 +144,35 @@ Page({
 
   dislikeOutfit() {
     this.changeOutfit();
+  },
+
+  openTunePanel() {
+    this.setData({ tunePanelOpen: true });
+  },
+
+  closeTunePanel() {
+    this.setData({ tunePanelOpen: false });
+  },
+
+  changePiece(event) {
+    const target = event.currentTarget.dataset.target;
+    const recommendation = this.data.recommendation;
+    const currentIds = {
+      top: recommendation.top && recommendation.top.id,
+      pants: recommendation.pants && recommendation.pants.id,
+      shoes: recommendation.shoes && recommendation.shoes.id
+    };
+    this.setData({
+      tunePanelOpen: false,
+      tuneOptions: {
+        replaceRole: target,
+        currentIds
+      },
+      changeIndex: this.data.changeIndex + 1,
+      confirmed: false,
+      canConfirm: false,
+      showCalendarLink: false
+    }, () => this.refreshRecommendation());
   },
 
   goCalendar() {
