@@ -143,19 +143,19 @@ Page({
     const width = 320;
     const height = 420;
     const outfits = this.data.selectedOutfits;
-    ctx.setFillStyle("#fffdfa");
+    ctx.setFillStyle("#ffffff");
     ctx.fillRect(0, 0, width, height);
-    ctx.setFillStyle("#1d1c1a");
+    ctx.setFillStyle("#141821");
     ctx.setFontSize(20);
     ctx.fillText(this.data.selectedDate, 22, 38);
-    ctx.setFillStyle("#8a6a38");
+    ctx.setFillStyle("#141821");
     ctx.setFontSize(14);
     ctx.fillText(this.data.selectedSummary, 22, 62);
 
     if (!outfits.length) {
-      ctx.setFillStyle("#eee5d6");
+      ctx.setFillStyle("#eef5f7");
       ctx.fillRect(22, 92, 276, 210);
-      ctx.setFillStyle("#817b70");
+      ctx.setFillStyle("#66717d");
       ctx.setFontSize(15);
       ctx.fillText("暂无穿搭记录", 108, 190);
       ctx.fillText("从推荐页确认后会出现在这里", 66, 218);
@@ -172,25 +172,27 @@ Page({
 
     blocks.forEach((block, index) => {
       const y = 92 + index * 82;
-      ctx.setFillStyle(["#f1eadf", "#eee5d6", "#e8ded0"][index]);
+      ctx.setFillStyle(["#eef5f7", "#f7fafb", "#fffaf0"][index]);
       ctx.fillRect(22, y, 276, 64);
-      ctx.setFillStyle("#8a6a38");
+      ctx.setFillStyle("#141821");
       ctx.setFontSize(13);
       ctx.fillText(block.label, 40, y + 24);
-      ctx.setFillStyle("#1d1c1a");
+      ctx.setFillStyle("#141821");
       ctx.setFontSize(15);
       ctx.fillText(block.item ? block.item.name.slice(0, 15) : "未记录", 88, y + 25);
-      ctx.setFillStyle("#817b70");
+      ctx.setFillStyle("#66717d");
       ctx.setFontSize(12);
       ctx.fillText(block.item ? `${block.item.color || "未填色"} · ${block.item.mainStyle || ""}`.slice(0, 18) : "", 88, y + 48);
     });
 
-    ctx.setFillStyle("#1d1c1a");
+    ctx.setFillStyle("#141821");
     ctx.setFontSize(14);
     ctx.fillText(`场景：${outfit.sceneText}`, 22, 352);
     ctx.fillText(`天气：${outfit.weatherText}`, 22, 378);
-    ctx.setFillStyle("#8a6a38");
+    ctx.setFillStyle("#141821");
     ctx.fillText(`配色：${outfit.palette || "未记录"}`, 22, 404);
     ctx.draw();
   }
 });
+
+

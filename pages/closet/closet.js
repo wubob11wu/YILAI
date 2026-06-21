@@ -1,39 +1,114 @@
 const storage = require("../../utils/storage");
 const taxonomy = require("../../utils/taxonomy");
+const limits = require("../../config/limits");
+
+const categoryVisuals = {
+  "全部": {
+    title: "全部衣物",
+    image: "/assets/closet-hero/all.jpg",
+    desc: "按真实衣橱的方式浏览你的日常单品"
+  },
+  "上装": {
+    title: "上装",
+    image: "/assets/closet-hero/tops.jpg",
+    desc: "T恤、衬衫、外套与针织"
+  },
+  "下装": {
+    title: "下装",
+    image: "/assets/closet-hero/bottoms.jpg",
+    desc: "裤装与裙装，让搭配轮廓更清晰"
+  },
+  "鞋子": {
+    title: "鞋子",
+    image: "/assets/closet-hero/shoes.jpg",
+    desc: "从通勤到休闲的每日落点"
+  },
+  "包饰": {
+    title: "包饰",
+    image: "/assets/closet-hero/bags.jpg",
+    desc: "包袋是搭配的风格收口"
+  },
+  "配饰": {
+    title: "配饰",
+    image: "/assets/closet-hero/accessories.jpg",
+    desc: "小面积单品决定精致度"
+  }
+};
 
 Page({
   data: {
     items: [],
     filteredItems: [],
     keyword: "",
-    categories: ["全部"].concat(taxonomy.getCategoryNames()),
+    categories: [],
     categoryFilter: "全部",
+    currentCategoryTitle: "全部衣物",
+    currentCategoryCount: 0,
+    currentHero: categoryVisuals["全部"],
     filterOpen: false,
+    searchOpen: false,
     defaultSeasonText: "",
     subcategoryOptions: [],
+    visibleSubcategoryOptions: [],
+    hiddenSubcategoryOptions: [],
+    hasHiddenSubcategories: false,
+    subcategoryMenuOpen: false,
+    hiddenSubcategoryActive: false,
+    subcategoryMenuHeight: 0,
     seasonOptions: [],
     colorOptions: [],
     styleOptions: [],
     selectedSubcategories: [],
     selectedSeasons: [],
     selectedColors: [],
-    selectedStyles: []
+    selectedStyles: [],
+    itemLimitText: ""
   },
 
   onShow() {
     const selectedSeasons = taxonomy.getDefaultVisibleSeasons();
+    const items = storage.getItems();
     this.setData({
-      items: storage.getItems(),
+      items,
       selectedSeasons,
-      defaultSeasonText: selectedSeasons.join(" / ")
+      defaultSeasonText: selectedSeasons.join(" / "),
+      itemLimitText: this.buildLimitText(items.length)
     }, () => {
+      this.syncCategories();
       this.syncFilterOptions();
       this.applyFilters();
     });
   },
 
   addItem() {
+    wx.showActionSheet({
+      itemList: ["添加单件", "批量导入"],
+      success: (res) => {
+        if (res.tapIndex === 0) {
+          this.goAddSingle();
+          return;
+        }
+        wx.navigateTo({ url: "/pages/batch-import/batch-import" });
+      }
+    });
+  },
+
+  goAddSingle() {
+    const planLimits = limits.getPlanLimits();
+    if (storage.getItems().length >= planLimits.maxItems) {
+      wx.showModal({
+        title: "衣橱已达免费上限",
+        content: `当前免费版最多可录入 ${planLimits.maxItems} 件衣物。可以先删除不常穿的衣物，后续会员版将支持更多衣物。`,
+        showCancel: false
+      });
+      return;
+    }
     wx.navigateTo({ url: "/pages/item-edit/item-edit" });
+  },
+
+  buildLimitText(count) {
+    const planLimits = limits.getPlanLimits();
+    return `免费版 ${count}/${planLimits.maxItems} 件`;
   },
 
   editItem(event) {
@@ -48,7 +123,14 @@ Page({
       success: (res) => {
         if (!res.confirm) return;
         storage.removeItem(id);
-        this.setData({ items: storage.getItems() }, this.applyFilters);
+        const items = storage.getItems();
+        this.setData({
+          items,
+          itemLimitText: this.buildLimitText(items.length)
+        }, () => {
+          this.syncCategories();
+          this.applyFilters();
+        });
       }
     });
   },
@@ -57,14 +139,44 @@ Page({
     this.setData({ keyword: event.detail.value }, this.applyFilters);
   },
 
+  toggleSearch() {
+    this.setData({ searchOpen: !this.data.searchOpen });
+  },
+
+  clearKeyword() {
+    this.setData({ keyword: "", searchOpen: false }, this.applyFilters);
+  },
+
   setCategory(event) {
     this.setData({
       categoryFilter: event.currentTarget.dataset.value,
-      selectedSubcategories: []
+      selectedSubcategories: [],
+      subcategoryMenuOpen: false
     }, () => {
       this.syncFilterOptions();
       this.applyFilters();
     });
+  },
+
+  setSubcategory(event) {
+    const value = event.currentTarget.dataset.value;
+    const selectedSubcategories = this.data.selectedSubcategories.includes(value) ? [] : [value];
+    this.setData({
+      selectedSubcategories,
+      subcategoryMenuOpen: false
+    }, () => {
+      this.syncFilterOptions();
+      this.applyFilters();
+    });
+  },
+
+  toggleSubcategoryMenu() {
+    this.setData({ subcategoryMenuOpen: !this.data.subcategoryMenuOpen });
+  },
+
+  closeSubcategoryMenu() {
+    if (!this.data.subcategoryMenuOpen) return;
+    this.setData({ subcategoryMenuOpen: false });
   },
 
   toggleFilter() {
@@ -103,14 +215,43 @@ Page({
     });
   },
 
+  syncCategories() {
+    const items = this.data.items;
+    const categoryNames = ["全部"].concat(taxonomy.getCategoryNames());
+    const categories = categoryNames.map((name) => {
+      const count = name === "全部" ? items.length : items.filter((item) => item.category === name).length;
+      const visual = categoryVisuals[name] || categoryVisuals["全部"];
+      return {
+        name,
+        count,
+        image: visual.image,
+        active: name === this.data.categoryFilter
+      };
+    });
+    this.setData({ categories });
+  },
+
   syncFilterOptions() {
     const category = this.data.categoryFilter;
-    const subcategories = category === "全部"
+    const baseSubcategories = category === "全部"
       ? taxonomy.categories.flatMap((item) => item.subcategories)
       : taxonomy.getSubcategories(category);
+    const subcategoryOptions = baseSubcategories.map((name) => ({
+      name,
+      active: this.data.selectedSubcategories.includes(name)
+    }));
+    const visibleCount = subcategoryOptions.length > 4 ? 3 : 4;
+    const visibleSubcategoryOptions = subcategoryOptions.slice(0, visibleCount);
+    const hiddenSubcategoryOptions = subcategoryOptions.slice(visibleCount);
+    const subcategoryMenuHeight = Math.min(hiddenSubcategoryOptions.length * 62 + 18, 382);
 
     this.setData({
-      subcategoryOptions: subcategories.map((name) => ({ name, active: this.data.selectedSubcategories.includes(name) })),
+      subcategoryOptions,
+      visibleSubcategoryOptions,
+      hiddenSubcategoryOptions,
+      hasHiddenSubcategories: hiddenSubcategoryOptions.length > 0,
+      hiddenSubcategoryActive: hiddenSubcategoryOptions.some((item) => item.active),
+      subcategoryMenuHeight,
       seasonOptions: taxonomy.seasons.map((name) => ({ name, active: this.data.selectedSeasons.includes(name) })),
       colorOptions: taxonomy.colors.map((name) => ({ name, active: this.data.selectedColors.includes(name) })),
       styleOptions: taxonomy.mainStyles.slice(0, 6).map((name) => ({ name, active: this.data.selectedStyles.includes(name) }))
@@ -137,6 +278,14 @@ Page({
       const matchStyle = !selectedStyles.length || selectedStyles.includes(item.mainStyle);
       return matchKeyword && matchCategory && matchSubcategory && matchSeason && matchColor && matchStyle;
     });
-    this.setData({ filteredItems });
+    const currentCategoryCount = items.filter((item) => (
+      categoryFilter === "全部" || item.category === categoryFilter
+    )).length;
+    this.setData({
+      filteredItems,
+      currentCategoryTitle: categoryFilter === "全部" ? "全部衣物" : categoryFilter,
+      currentCategoryCount,
+      currentHero: categoryVisuals[categoryFilter] || categoryVisuals["全部"]
+    }, () => this.syncCategories());
   }
 });

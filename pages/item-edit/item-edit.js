@@ -1,6 +1,6 @@
 const storage = require("../../utils/storage");
-const recognizer = require("../../utils/recognizer");
 const taxonomy = require("../../utils/taxonomy");
+const limits = require("../../config/limits");
 
 function emptyForm() {
   return {
@@ -63,14 +63,13 @@ Page({
       sourceType: ["album", "camera"],
       success: (res) => {
         const tempFilePath = res.tempFiles[0].tempFilePath;
-        const recognized = recognizer.recognizeImage(tempFilePath);
-        const form = Object.assign({}, this.data.form, recognized);
+        const form = Object.assign({}, this.data.form, { image: tempFilePath });
         this.setData({
           form,
           autoColorText: taxonomy.getColorDisplayName(form.color),
           autoSeasonText: form.seasons.join("、")
         }, this.syncOptions);
-        wx.showToast({ title: "已自动预填信息", icon: "success" });
+        wx.showToast({ title: "已添加图片，请完善信息", icon: "none" });
       }
     });
   },
@@ -196,6 +195,17 @@ Page({
     const error = this.validate();
     if (error) {
       wx.showToast({ title: error, icon: "none" });
+      return;
+    }
+    const items = storage.getItems();
+    const isNew = !items.some((item) => item.id === this.data.form.id);
+    const planLimits = limits.getPlanLimits();
+    if (isNew && items.length >= planLimits.maxItems) {
+      wx.showModal({
+        title: "衣橱已达免费上限",
+        content: `当前免费版最多可录入 ${planLimits.maxItems} 件衣物。后续会员版将支持更多衣物。`,
+        showCancel: false
+      });
       return;
     }
     storage.saveItem(this.data.form);

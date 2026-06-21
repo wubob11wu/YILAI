@@ -7,7 +7,7 @@
     <view class="required-title">必填 1 · 单品图片</view>
     <view class="image-area" bindtap="chooseImage">
       <image wx:if="{{form.image}}" class="preview" mode="aspectFill" src="{{form.image}}" />
-      <view wx:else class="upload-hint">拍照 / 相册选择 / 自动裁剪为方图</view>
+      <view wx:else class="upload-hint">拍照 / 相册选择</view>
     </view>
     <button class="secondary-btn full-btn" bindtap="chooseImage">拍照 / 相册选择</button>
   </view>
@@ -26,7 +26,7 @@
 
   <view class="edit-section">
     <view class="required-title">必填 3 · 颜色选择</view>
-    <view class="auto-line">✅ 系统已自动识别主色：{{autoColorText}}</view>
+    <view class="auto-line">请选择主色，系统不会猜测图片内容。</view>
     <view class="color-grid">
       <view wx:for="{{colorOptions}}" wx:key="name" class="color-chip {{item.active ? 'active' : ''}}" data-value="{{item.name}}" bindtap="setColor">{{item.display}}</view>
     </view>
@@ -39,7 +39,7 @@
 
   <view class="edit-section">
     <view class="required-title">必填 5 · 适用季节</view>
-    <view class="auto-line">✅ 系统已自动选择：{{autoSeasonText}}</view>
+    <view class="auto-line">根据品类建议季节：{{autoSeasonText}}</view>
     <view class="chip-row">
       <view wx:for="{{seasonOptions}}" wx:key="name" class="select-chip {{item.active ? 'active' : ''}}" data-value="{{item.name}}" bindtap="toggleSeason">{{item.name}}</view>
     </view>

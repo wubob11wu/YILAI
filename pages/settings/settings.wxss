@@ -2,18 +2,19 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20rpx;
+  gap: 24rpx;
 }
 
 .profile-name {
+  color: #141821;
   font-size: 34rpx;
-  font-weight: 700;
+  font-weight: 760;
 }
 
 .setting-row {
-  min-height: 128rpx;
-  padding: 22rpx 0;
-  border-bottom: 2rpx solid #eee6d9;
+  min-height: 132rpx;
+  padding: 24rpx 0;
+  border-bottom: 2rpx solid #eef5f7;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -25,13 +26,15 @@
 }
 
 .setting-title {
-  font-weight: 700;
+  color: #141821;
+  font-weight: 760;
 }
 
 .setting-desc,
 .roadmap {
   margin-top: 8rpx;
-  color: #817b70;
+  color: #66717d;
   font-size: 24rpx;
-  line-height: 1.5;
+  line-height: 1.55;
 }
+

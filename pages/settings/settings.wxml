@@ -23,29 +23,18 @@
     <view class="section-title">隐私设置</view>
     <view class="setting-row">
       <view>
-        <view class="setting-title">隐藏个人身材数据</view>
-        <view class="setting-desc">MVP 暂不采集身材数据，开关会保留到账号设置。</view>
-      </view>
-      <switch checked="{{privacy.hideBodyData}}" data-field="hideBodyData" bindchange="togglePrivacy" color="#1d1c1a" />
-    </view>
-    <view class="setting-row">
-      <view>
         <view class="setting-title">隐藏穿搭记录</view>
         <view class="setting-desc">开启后，日历页不展示历史穿搭明细。</view>
       </view>
-      <switch checked="{{privacy.hideOutfitRecords}}" data-field="hideOutfitRecords" bindchange="togglePrivacy" color="#1d1c1a" />
+      <switch checked="{{privacy.hideOutfitRecords}}" data-field="hideOutfitRecords" bindchange="togglePrivacy" color="#141821" />
     </view>
     <view class="setting-row">
       <view>
         <view class="setting-title">开启位置权限</view>
         <view class="setting-desc">关闭后使用上方城市生成天气推荐。</view>
       </view>
-      <switch checked="{{privacy.locationEnabled}}" data-field="locationEnabled" bindchange="togglePrivacy" color="#1d1c1a" />
+      <switch checked="{{privacy.locationEnabled}}" data-field="locationEnabled" bindchange="togglePrivacy" color="#141821" />
     </view>
   </view>
-
-  <view class="section panel">
-    <view class="section-title">后续可接入</view>
-    <view class="roadmap">云开发数据库、微信手机号授权、真实天气 API、图片识别模型、衣物图片云存储。</view>
-  </view>
 </view>
+

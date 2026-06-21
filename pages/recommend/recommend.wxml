@@ -1,12 +1,16 @@
 <view class="recommend-page">
-  <view class="weather-bar">
-    <view class="weather-main">
-      <text>{{weather.city}}</text>
-      <text>{{weather.temp}}℃</text>
-      <text>{{weather.text}}</text>
-      <text>{{weather.icon}}</text>
+  <view class="recommend-header">
+    <view>
+      <view class="eyebrow">今日搭配</view>
+      <view class="title">今天穿什么</view>
     </view>
-    <view class="weather-tip">{{weather.dressingTip}}</view>
+    <view class="weather-chip">
+      <text>{{weather.city}}</text>
+      <text wx:if="{{weather.tempText}}">{{weather.tempText}}</text>
+    </view>
+  </view>
+  <view wx:if="{{weather.isFallback}}" class="weather-notice">
+    {{weather.city}}，{{weather.displayText}}
   </view>
 
   <view class="scene-strip">
@@ -17,17 +21,39 @@
       data-name="{{item.name}}"
       bindtap="selectScene"
     >{{item.name}}</view>
-    <view class="scene-chip more" bindtap="openScenePanel">更多+</view>
+    <view class="scene-chip more" bindtap="openScenePanel">更多场景</view>
   </view>
 
   <view class="outfit-showcase">
-    <view wx:if="{{recommendation.missingText}}" class="missing">缺少 {{recommendation.missingText}}，推荐可能不完整。</view>
-    <view wx:for="{{recommendation.pieces}}" wx:key="role" class="piece-row">
-      <view class="piece-image">
-        <image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill" />
-        <view wx:else class="piece-placeholder">{{item.role}}</view>
+    <view class="showcase-top">
+      <view>
+        <view class="showcase-kicker">{{selectedSceneName}} · {{weather.displayText}}</view>
+        <view class="showcase-title">就穿这套</view>
       </view>
-      <view class="piece-caption">{{item.name}}</view>
+      <view class="showcase-temp">{{weather.tempText || '默认'}}</view>
+    </view>
+    <view class="weather-tip dark">{{weather.dressingTip}}</view>
+
+    <view wx:if="{{recommendation.missingText}}" class="missing">缺少 {{recommendation.missingText}}，推荐可能不完整。</view>
+
+    <view class="piece-grid">
+      <view wx:for="{{recommendation.pieces}}" wx:for-index="pieceIndex" wx:key="role" class="piece-card piece-{{pieceIndex}}">
+        <view class="piece-image">
+          <image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill" />
+          <view wx:else class="piece-placeholder">
+            <text>{{item.role}}</text>
+          </view>
+        </view>
+        <view class="piece-caption">
+          <view class="piece-role">{{item.role}}</view>
+          <view class="piece-name">{{item.name}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="showcase-footer">
+      <text>{{recommendation.palette}}</text>
+      <text>{{recommendation.itemIds.length}} 件单品</text>
     </view>
   </view>
 
@@ -44,19 +70,18 @@
 
   <view class="reason-card">
     <view class="reason-title">推荐理由</view>
-    <view wx:for="{{recommendation.reasonLines}}" wx:key="*this" class="reason-line">✅ {{item}}</view>
+    <view wx:for="{{recommendation.reasonLines}}" wx:key="*this" class="reason-line">{{item}}</view>
   </view>
 
   <view class="action-area">
-    <button class="wear-btn {{confirmed ? 'confirmed' : ''}}" bindtap="confirmOutfit" disabled="{{!canConfirm}}">
-      {{confirmed ? '已确认 ✓' : '👍 就穿这套'}}
+    <button class="action-btn primary-action {{confirmed ? 'confirmed' : ''}}" bindtap="confirmOutfit" disabled="{{!canConfirm}}">
+      {{confirmed ? '已确认' : '就穿这套'}}
     </button>
     <view wx:if="{{showCalendarLink}}" class="calendar-link" bindtap="goCalendar">查看日历</view>
     <view class="secondary-actions">
-      <button class="change-btn" bindtap="changeOutfit">换一套</button>
-      <button class="change-btn" bindtap="openTunePanel">微调</button>
+      <button class="action-btn secondary-action" bindtap="changeOutfit">换一套</button>
+      <button class="action-btn secondary-action" bindtap="openTunePanel">微调</button>
     </view>
-    <button class="dislike-btn" bindtap="dislikeOutfit">不喜欢，换一套</button>
   </view>
 
   <view wx:if="{{scenePanelOpen}}" class="panel-mask" bindtap="closeScenePanel"></view>

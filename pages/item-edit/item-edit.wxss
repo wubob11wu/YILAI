@@ -1,41 +1,43 @@
 .edit-page {
   min-height: 100vh;
-  padding: 28rpx 28rpx 0;
-  background: #f6f2ea;
+  padding: 34rpx 30rpx 0;
+  background: #f7fafb;
 }
 
 .edit-header {
-  margin-bottom: 20rpx;
+  margin-bottom: 22rpx;
 }
 
 .edit-section {
-  margin-top: 18rpx;
-  padding: 24rpx;
-  border: 2rpx solid #e2d9ca;
-  border-radius: 16rpx;
-  background: #fffdfa;
+  margin-top: 20rpx;
+  padding: 26rpx;
+  border: 2rpx solid #e1e9ee;
+  border-radius: 32rpx;
+  background: #ffffff;
+  box-shadow: 0 18rpx 48rpx rgba(20, 24, 33, 0.06);
 }
 
 .required-title {
-  margin-bottom: 16rpx;
-  color: #1d1c1a;
-  font-size: 29rpx;
-  font-weight: 700;
+  margin-bottom: 18rpx;
+  color: #141821;
+  font-size: 30rpx;
+  font-weight: 760;
+  line-height: 1.35;
 }
 
 .field-label {
-  margin: 18rpx 0 12rpx;
-  color: #817b70;
+  margin: 22rpx 0 12rpx;
+  color: #66717d;
   font-size: 24rpx;
 }
 
 .image-area {
   width: 100%;
   aspect-ratio: 1 / 1;
-  border: 2rpx dashed #cfc4b4;
-  border-radius: 14rpx;
+  border: 2rpx dashed #dbe4e7;
+  border-radius: 32rpx;
   overflow: hidden;
-  background: #eee5d6;
+  background: #eef5f7;
 }
 
 .preview {
@@ -45,12 +47,17 @@
 
 .upload-hint {
   height: 100%;
-  padding: 0 40rpx;
+  padding: 0 52rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #8a6a38;
-  font-weight: 700;
+  background:
+    linear-gradient(145deg, rgba(216, 185, 106, 0.12), rgba(216, 185, 106, 0.18)),
+    #eef5f7;
+  color: #141821;
+  font-size: 28rpx;
+  font-weight: 800;
+  line-height: 1.45;
   text-align: center;
 }
 
@@ -68,66 +75,85 @@
 
 .select-chip,
 .color-chip {
-  min-height: 58rpx;
-  padding: 0 18rpx;
-  border: 2rpx solid #ded4c4;
-  border-radius: 29rpx;
+  min-height: 60rpx;
+  padding: 0 20rpx;
+  border: 2rpx solid #e1e9ee;
+  border-radius: 999rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #5a554c;
+  background: #ffffff;
+  color: #66717d;
   font-size: 23rpx;
+  font-weight: 700;
 }
 
 .select-chip.active,
 .color-chip.active {
-  border-color: #1d1c1a;
-  background: #1d1c1a;
-  color: #fffdfa;
+  border-color: #141821;
+  background: #141821;
+  color: #ffffff;
 }
 
 .auto-line {
+  position: relative;
   margin-bottom: 14rpx;
-  color: #8a6a38;
+  padding: 16rpx 18rpx 16rpx 34rpx;
+  border-radius: 22rpx;
+  background: #eef5f7;
+  color: #141821;
   font-size: 24rpx;
+  line-height: 1.45;
+}
+
+.auto-line::before {
+  content: "";
+  position: absolute;
+  left: 18rpx;
+  top: 28rpx;
+  width: 8rpx;
+  height: 8rpx;
+  border-radius: 50%;
+  background: #141821;
 }
 
 .edit-input,
 .note-input {
   width: 100%;
-  border: 2rpx solid #ded4c4;
-  border-radius: 12rpx;
-  background: #fffdfa;
-  color: #1d1c1a;
+  border: 2rpx solid #e1e9ee;
+  border-radius: 24rpx;
+  background: #ffffff;
+  color: #141821;
   font-size: 26rpx;
 }
 
 .edit-input {
-  height: 78rpx;
-  padding: 0 20rpx;
+  height: 84rpx;
+  padding: 0 22rpx;
 }
 
 .note-input {
-  min-height: 140rpx;
-  padding: 18rpx 20rpx;
+  min-height: 152rpx;
+  padding: 20rpx 22rpx;
+  line-height: 1.55;
 }
 
 .more-toggle {
-  margin-top: 18rpx;
-  height: 76rpx;
-  padding: 0 24rpx;
-  border: 2rpx solid #e2d9ca;
-  border-radius: 14rpx;
+  margin-top: 20rpx;
+  height: 78rpx;
+  padding: 0 26rpx;
+  border: 2rpx solid #e1e9ee;
+  border-radius: 28rpx;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #fffdfa;
-  color: #1d1c1a;
-  font-weight: 700;
+  background: #ffffff;
+  color: #141821;
+  font-weight: 760;
 }
 
 .bottom-space {
-  height: 130rpx;
+  height: 140rpx;
 }
 
 .bottom-actions {
@@ -136,31 +162,35 @@
   right: 0;
   bottom: 0;
   z-index: 5;
-  padding: 18rpx 28rpx 28rpx;
+  padding: 18rpx 30rpx 30rpx;
   display: flex;
   gap: 16rpx;
-  background: rgba(246, 242, 234, 0.96);
+  background: rgba(248, 251, 252, 0.96);
+  border-top: 2rpx solid rgba(225, 233, 238, 0.78);
 }
 
 .save-btn,
 .delete-btn {
-  height: 88rpx;
-  border-radius: 44rpx;
+  height: 90rpx;
+  border-radius: 999rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 28rpx;
-  font-weight: 700;
+  font-weight: 760;
 }
 
 .save-btn {
   flex: 1;
-  background: #1d1c1a;
-  color: #fffdfa;
+  background: #141821;
+  color: #ffffff;
+  box-shadow: 0 16rpx 36rpx rgba(20, 24, 33, 0.15);
 }
 
 .delete-btn {
   width: 180rpx;
-  background: #f0ded8;
-  color: #8d3b2f;
+  background: #f9e9e6;
+  color: #9f5d50;
 }
+
+

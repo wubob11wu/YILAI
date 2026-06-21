@@ -142,10 +142,6 @@ Page({
     }, () => this.refreshRecommendation());
   },
 
-  dislikeOutfit() {
-    this.changeOutfit();
-  },
-
   openTunePanel() {
     this.setData({ tunePanelOpen: true });
   },

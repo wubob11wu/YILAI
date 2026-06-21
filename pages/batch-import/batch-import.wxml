@@ -1,0 +1,80 @@
+<view class="batch-page">
+  <view class="batch-header">
+    <view>
+      <view class="title">批量导入</view>
+      <view class="subtitle">先批量选图，再逐张补充信息</view>
+      <view class="limit-text">{{limitText}}</view>
+    </view>
+    <button class="choose-btn" bindtap="chooseImages">选择图片</button>
+  </view>
+
+  <view class="progress-card">
+    <view>{{progressText}}</view>
+    <view class="quick-actions" wx:if="{{drafts.length}}">
+      <button bindtap="applySeasonToAll" data-value="warm">全部春夏</button>
+      <button bindtap="applySeasonToAll" data-value="cold">全部秋冬</button>
+    </view>
+  </view>
+
+  <scroll-view wx:if="{{drafts.length}}" class="draft-strip" scroll-x enhanced show-scrollbar="{{false}}">
+    <view class="draft-row">
+      <view
+        wx:for="{{drafts}}"
+        wx:key="id"
+        class="draft-thumb {{index === currentIndex ? 'active' : ''}} {{item.completed ? 'done' : ''}}"
+        data-index="{{index}}"
+        bindtap="selectDraft"
+      >
+        <image src="{{item.image}}" mode="aspectFill" />
+      </view>
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{currentDraft}}" class="editor-card">
+    <image class="hero-image" src="{{currentDraft.image}}" mode="aspectFill" />
+
+    <view class="field-block">
+      <view class="field-title">品类</view>
+      <view class="chip-row">
+        <view wx:for="{{categoryOptions}}" wx:key="name" class="select-chip {{item.active ? 'active' : ''}}" data-value="{{item.name}}" bindtap="setCategory">{{item.name}}</view>
+      </view>
+    </view>
+
+    <view class="field-block">
+      <view class="field-title">细分品类</view>
+      <view class="chip-row">
+        <view wx:for="{{subcategoryOptions}}" wx:key="name" class="select-chip {{item.active ? 'active' : ''}}" data-value="{{item.name}}" bindtap="setSubcategory">{{item.name}}</view>
+      </view>
+    </view>
+
+    <view class="field-block">
+      <view class="field-title">颜色</view>
+      <view class="chip-row">
+        <view wx:for="{{colorOptions}}" wx:key="name" class="select-chip {{item.active ? 'active' : ''}}" data-value="{{item.name}}" bindtap="setColor">{{item.display}}</view>
+      </view>
+    </view>
+
+    <view class="field-block">
+      <view class="field-title">衣物名称</view>
+      <input class="name-input" value="{{currentDraft.name}}" bindinput="onNameInput" placeholder="可修改自动生成的名称" />
+    </view>
+
+    <view class="field-block">
+      <view class="field-title">适用季节</view>
+      <view class="chip-row">
+        <view wx:for="{{seasonOptions}}" wx:key="name" class="select-chip {{item.active ? 'active' : ''}}" data-value="{{item.name}}" bindtap="toggleSeason">{{item.name}}</view>
+      </view>
+    </view>
+
+    <button class="complete-btn" bindtap="markCurrentComplete">保存当前并下一件</button>
+  </view>
+
+  <view wx:else class="empty">
+    选择多张衣物图片后，这里会生成待整理草稿。系统不会猜测图片内容。
+  </view>
+
+  <view class="bottom-space"></view>
+  <view class="bottom-actions">
+    <button class="save-all-btn" bindtap="saveAll" disabled="{{!drafts.length}}">保存全部可用项</button>
+  </view>
+</view>

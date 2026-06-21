@@ -22,18 +22,36 @@ function getWeatherIcon(text) {
   return "☀️";
 }
 
-function fallbackWeather() {
+function getFallbackTip(reason) {
+  const text = String(reason || "");
+  if (/domain|url not in domain|合法域名|not in the domain/i.test(text)) {
+    return "请求域名未放行";
+  }
+  if (/timeout|timed out/i.test(text)) return "请求超时";
+  if (/fail|network|ERR_|request:fail/i.test(text)) return "网络请求失败";
+  if (/401|403|Invalid Host|unauthorized/i.test(text)) return "天气凭据或 Host 未授权";
+  if (/402|quota|balance/i.test(text)) return "天气额度不足";
+  if (/No location/i.test(text)) return "城市解析失败";
+  if (/missing_api_key/i.test(text)) return "缺少天气 Key";
+  return text || "请求失败";
+}
+
+function fallbackWeather(reason) {
   return {
-    city: "北京",
+    city: "天气暂不可用",
     temp: 20,
-    text: "晴",
+    tempText: "",
+    text: "默认",
+    displayText: "已按默认气温推荐",
     icon: "☀️",
     rainChance: 0,
     wind: "2",
     season: getSeasonByTemp(20),
-    summary: "晴",
+    summary: "默认天气",
     dressingTip: "建议穿薄款长袖",
-    isFallback: true
+    isFallback: true,
+    fallbackReason: reason || "",
+    fallbackTip: getFallbackTip(reason)
   };
 }
 
@@ -70,44 +88,75 @@ function request(url, data) {
         if (res.statusCode >= 200 && res.statusCode < 300 && res.data && res.data.code === "200") {
           resolve(res.data);
         } else {
-          reject(new Error("QWeather request failed"));
+          const apiError = res.data && res.data.error;
+          const apiCode = res.data && res.data.code;
+          const message = apiError
+            ? `${res.statusCode} ${apiError.title || ""} ${apiError.detail || ""}`
+            : `HTTP ${res.statusCode} QWeather code ${apiCode || "unknown"}`;
+          reject(new Error(message));
         }
       },
-      fail: reject
+      fail: (error) => {
+        reject(new Error(error && error.errMsg ? error.errMsg : "wx.request failed"));
+      }
     });
   });
 }
 
-function fetchCurrentWeather(city) {
-  if (!qweather.apiKey) {
-    return Promise.resolve(fallbackWeather());
-  }
+function normalizeCurrentWeather(weather, city) {
+  const now = weather.now || {};
+  const temp = Number(now.temp) || 20;
+  const text = now.text || "晴";
+  return {
+    city,
+    temp,
+    tempText: `${temp}℃`,
+    text,
+    displayText: text,
+    icon: getWeatherIcon(text),
+    rainChance: Number(now.precip) > 0 ? 70 : 0,
+    wind: now.windScale || "2",
+    season: getSeasonByTemp(temp),
+    summary: text,
+    dressingTip: getDressingTip(temp, text),
+    isFallback: false
+  };
+}
 
+function isCoordinateLocation(location) {
+  return /^-?\d+(\.\d+)?,-?\d+(\.\d+)?$/.test(String(location || "").trim());
+}
+
+function fetchWeatherByLocation(location, cityName) {
+  return request(`${qweather.apiHost}/v7/weather/now`, { location, lang: "zh", unit: "m" })
+    .then((weather) => normalizeCurrentWeather(weather, cityName || location));
+}
+
+function fetchWeatherByCity(city) {
   const queryCity = city || "南京";
   return request(`${qweather.apiHost}/geo/v2/city/lookup`, { location: queryCity, lang: "zh" })
     .then((geo) => {
       const location = geo.location && geo.location[0];
       if (!location) throw new Error("No location");
-      return request(`${qweather.apiHost}/v7/weather/now`, { location: location.id, lang: "zh", unit: "m" })
-        .then((weather) => {
-          const now = weather.now || {};
-          const temp = Number(now.temp) || 20;
-          const text = now.text || "晴";
-          return {
-            city: location.name || queryCity,
-            temp,
-            text,
-            icon: getWeatherIcon(text),
-            rainChance: Number(now.precip) > 0 ? 70 : 0,
-            wind: now.windScale || "2",
-            season: getSeasonByTemp(temp),
-            summary: text,
-            dressingTip: getDressingTip(temp, text),
-            isFallback: false
-          };
-        });
-    })
-    .catch(() => fallbackWeather());
+      return fetchWeatherByLocation(location.id, location.name || queryCity);
+    });
+}
+
+function fetchCurrentWeather(locationOrCity) {
+  if (!qweather.apiKey) {
+    return Promise.resolve(fallbackWeather("missing_api_key"));
+  }
+
+  const query = locationOrCity || "南京";
+  const weatherPromise = isCoordinateLocation(query)
+    ? fetchWeatherByLocation(query, "当前位置")
+    : fetchWeatherByCity(query);
+
+  return weatherPromise
+    .catch((error) => {
+      console.warn("[YILAI weather] QWeather request failed", error);
+      return fallbackWeather(error && error.message ? error.message : "request_failed");
+    });
 }
 
 module.exports = {

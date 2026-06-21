@@ -1,3 +1,7 @@
 {
-  "navigationBarTitleText": "穿搭推荐"
+  "navigationBarTitleText": "衣来",
+  "navigationBarBackgroundColor": "#141821",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#f7fafb"
 }
+
